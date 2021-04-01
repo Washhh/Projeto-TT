@@ -1,46 +1,53 @@
-import React, { Component } from 'react'
-import vector from '../../../../../../assets/icons/vector.png'
-import { updateTable } from '../../../../../../interfaces/Interfaces'
-import {StyledTable,TableContent,Title,SubTitle,Pending,Realized} from './styles'
+// eslint-disable-next-line no-use-before-define
+import React from 'react';
+import vector from '../../../../../../assets/icons/vector.png';
+import { updateTableDataType } from '../../../../../../interfaces/Interfaces';
+import {
+  StyledTable,
+  TableContent,
+  Title,
+  SubTitle,
+  Pending,
+  Realized,
+} from './styles';
 
 interface propsType {
-    data: updateTable[]
+  data: updateTableDataType[];
 }
 
 export default React.memo((props: propsType) => {
-
-    const createTable = () => {
-        return (
-            <StyledTable>
-                <tbody>
-                    {createRows()}
-                </tbody>
-            </StyledTable>
-        )
-    }
-
-    const createRows = () => {
-        return props.data.map(data => {
-            return (
-                <tr key={data.id} className="rows">
-                    <tr>
-                        <td><Title>{data.title}</Title></td>
-                        <td>{data.pending ? <p><Pending>PENDENTE</Pending> <img src={vector} alt="" /></p> : ""}<Realized>{data.realized ? " REALIZADO" : ""}</Realized></td>
-                    </tr>
-                    <tr>
-                        <td><SubTitle>responsável: {data.responsible}</SubTitle></td>
-                        <td><SubTitle>{data.date}</SubTitle></td>
-                    </tr>
-                </tr>
-
-            )
-        })
-    }
-
+  const createRows = function rows(): JSX.Element[] {
+    return props.data.map((data) => {
+      return (
+        <tr key={data.id} className="rows">
+          <td>
+            <Title>{data.title}</Title>
+            <SubTitle>responsável: {data.responsible}</SubTitle>
+          </td>
+          <td>
+            {data.pending ? (
+              <p>
+                <Pending>PENDENTE</Pending> <img src={vector} alt="" />
+                <Realized>{data.realized ? ' REALIZADO' : ''}</Realized>
+              </p>
+            ) : (
+              <p>
+                <Realized>{data.realized ? ' REALIZADO' : ''}</Realized>
+              </p>
+            )}
+            <SubTitle>{data.date}</SubTitle>
+          </td>
+        </tr>
+      );
+    });
+  };
+  const createTable = function table(): JSX.Element {
     return (
-        <TableContent>
-            {createTable()}
-        </TableContent>
-    )
-})
+      <StyledTable>
+        <tbody>{createRows()}</tbody>
+      </StyledTable>
+    );
+  };
 
+  return <TableContent>{createTable()}</TableContent>;
+});

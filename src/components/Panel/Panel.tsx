@@ -1,156 +1,157 @@
-import React, { useEffect, useRef, useState } from 'react'
-import panel from '../../assets/img/panel.png'
-import minimize from '../../assets/icons/minimize.png'
-import maximize from '../../assets/icons/maximize.png'
-import {StyledPanel,HiddenButton,MinimizeButton,MaximizeButton} from './styles'
+/* eslint-disable react-hooks/rules-of-hooks */
+/* eslint-disable no-use-before-define */
+import React, { useEffect, useRef, useState } from 'react';
+import panel from '../../assets/img/panel.png';
+import minimize from '../../assets/icons/minimize.png';
+import maximize from '../../assets/icons/maximize.png';
+import {
+  StyledPanel,
+  HiddenButton,
+  MinimizeButton,
+  MaximizeButton,
+} from './styles';
 
+let dashboardStatus = 'display';
+let divWrapperSize: number;
 
-let dashboardStatus = "display"
-let divWrapperSize:number = 0;
-let count: NodeJS.Timeout
+export default function panelControl(): JSX.Element {
+  const boxWrapper = useRef<HTMLDivElement>(null);
+  const boxContent = useRef<HTMLDivElement>(null);
+  const button = useRef<HTMLButtonElement>(null);
 
-export default () => {
+  const [widthWrapper, setwidthWrapper] = useState(220);
+  const [Actived, setActived] = useState(false);
+  const setPanelState = (): void => {
+    if (dashboardStatus === 'display') {
+      const elem = document.getElementById('panel');
+      if (elem) {
+        divWrapperSize = elem.offsetWidth;
+        setwidthWrapper(elem.offsetWidth);
+      }
+    }
+    setActived(true);
+  };
 
-    const boxWrapper = useRef<HTMLDivElement>(null)
-    const boxContent = useRef<HTMLDivElement>(null)
-    const button = useRef<HTMLButtonElement>(null)
+  const changeState = (): void => {
+    if (dashboardStatus === 'hide') dashboardStatus = 'display';
+    else dashboardStatus = 'hide';
+    setActived(false);
+  };
 
-    const [widthWrapper, setwidthWrapper] = useState(220)
-    const [Actived, setActived] = useState(false)
-    const setPanelState = () => {
-        if(dashboardStatus == "display"){
-            var elem = document.getElementById("panel")
-            if (elem) {
-                divWrapperSize = elem.offsetWidth
-                setwidthWrapper(elem.offsetWidth)
-            }
-        }
-        setActived(true)
+  const resetButton = (): void => {
+    dashboardStatus = 'hide';
+    setwidthWrapper(0);
+    divWrapperSize = 50;
+    if (boxWrapper.current) {
+      boxWrapper.current.setAttribute(
+        'style',
+        'display:flex !important; width:0px'
+      );
+    }
+    if (button.current) {
+      button.current.setAttribute('style', 'display:none');
     }
 
-    const changeState = () => {
-        if (dashboardStatus === "hide") dashboardStatus = "display"
-        else dashboardStatus = "hide"
-        setActived(false)
+    if (boxContent.current) {
+      boxContent.current.setAttribute('style', 'visibility: hidden');
+    }
+    setTimeout(() => {
+      setPanelState();
+    }, 200);
+  };
+
+  useEffect(() => {
+    if (Actived && dashboardStatus === 'display') {
+      setTimeout(() => {
+        setwidthWrapper(widthWrapper - 22);
+      }, 50);
+
+      if (boxWrapper.current) {
+        boxWrapper.current.style.width = `${widthWrapper}px`;
+      }
+      if (boxContent.current) {
+        boxContent.current.style.visibility = 'hidden';
+      }
     }
 
-    const resetButton = () => {
-        dashboardStatus = "hide"
-        setwidthWrapper(0)
-        divWrapperSize = 50
-        if (boxWrapper.current) {
-            boxWrapper.current.setAttribute("style", "display:flex !important; width:0px")
+    if (Actived && widthWrapper > 0 && dashboardStatus === 'display') {
+      setTimeout(() => {
+        setwidthWrapper(widthWrapper - 22);
+      }, 50);
 
-        }
-        if (button.current) {
-            button.current.setAttribute("style", 'display:none')
-        }
+      if (boxWrapper.current) {
+        boxWrapper.current.style.width = `${widthWrapper}px`;
+      }
+    } else if (Actived && widthWrapper <= 0 && dashboardStatus === 'display') {
+      if (boxWrapper.current) {
+        boxWrapper.current.style.width = `${0}px`;
+        setwidthWrapper(0);
+      }
+      changeState();
+    } else if (Actived && widthWrapper <= 0 && dashboardStatus === 'hide') {
+      setTimeout(() => {
+        setwidthWrapper(widthWrapper + 22);
+      }, 20);
 
-        if (boxContent.current) {
-            boxContent.current.setAttribute("style", "visibility: hidden")
-        }
-        count = setTimeout(() => {
-            setPanelState()
-        }, 200)
+      if (boxWrapper.current) {
+        boxWrapper.current.style.visibility = 'visible';
+        boxWrapper.current.style.width = `${widthWrapper}px`;
+      }
+    } else if (
+      Actived &&
+      widthWrapper < divWrapperSize &&
+      dashboardStatus === 'hide'
+    ) {
+      setTimeout(() => {
+        setwidthWrapper(widthWrapper + 22);
+      }, 20);
 
+      if (boxWrapper.current) {
+        boxWrapper.current.style.width = `${widthWrapper}px`;
+      }
+    } else if (
+      Actived &&
+      widthWrapper >= divWrapperSize &&
+      dashboardStatus === 'hide'
+    ) {
+      if (boxWrapper.current) {
+        boxWrapper.current.style.width = `${divWrapperSize}px`;
+      }
+      if (boxContent.current) {
+        boxContent.current.style.visibility = 'visible';
+      }
+      changeState();
     }
+  }, [Actived, widthWrapper]);
 
-    useEffect(() => {
-        if (Actived && dashboardStatus === "display") {
+  return (
+    <>
+      <HiddenButton ref={button} onClick={resetButton}>
+        <img src={maximize} alt="" />
+      </HiddenButton>
 
-            count = setTimeout(() => {
-                setwidthWrapper(widthWrapper - 22)
-            }, 50)
+      <StyledPanel ref={boxWrapper} id="panel" className="controlPanel">
+        <div ref={boxContent}>
+          <img src={panel} alt="painel1" />
+          <p>Painel de Controle</p>
+        </div>
 
-            if (boxWrapper.current) {
-                boxWrapper.current.style.width = widthWrapper + 'px'
-            }
-            if (boxContent.current) {
-                boxContent.current.style.visibility = 'hidden'
-            }
-        }
+        {dashboardStatus === 'display' ? (
+          <MinimizeButton onClick={setPanelState}>
+            <img src={minimize} alt="" />
+          </MinimizeButton>
+        ) : (
+          ''
+        )}
 
-        if (Actived && widthWrapper > 0 && dashboardStatus === "display") {
-
-            count = setTimeout(() => {
-                setwidthWrapper(widthWrapper - 22)
-            }, 50)
-
-            if (boxWrapper.current) {
-                boxWrapper.current.style.width = widthWrapper + 'px'
-            }
-          
-        }
-
-        else if (Actived && widthWrapper <= 0 && dashboardStatus === "display") {
-            if (boxWrapper.current) {
-                boxWrapper.current.style.width = 0 + 'px'
-                setwidthWrapper(0)
-            }
-            changeState()
-        }
-
-        else if (Actived && widthWrapper <= 0 && dashboardStatus === "hide") {
-
-            count = setTimeout(() => {
-                setwidthWrapper(widthWrapper + 22)
-            }, 20)
-
-            if (boxWrapper.current) {
-                boxWrapper.current.style.visibility = 'visible'
-                boxWrapper.current.style.width = widthWrapper + 'px'
-
-            }
-        }
-
-        else if (Actived && widthWrapper < divWrapperSize && dashboardStatus === "hide") {
-            count = setTimeout(() => {
-                setwidthWrapper(widthWrapper + 22)
-            }, 20)
-
-            if (boxWrapper.current) {
-                boxWrapper.current.style.width = widthWrapper + 'px'
-            }
-        }
-
-        else if (Actived && widthWrapper >= divWrapperSize && dashboardStatus === "hide") {
-
-            if (boxWrapper.current) {
-                boxWrapper.current.style.width = divWrapperSize + 'px'
-            }
-            if (boxContent.current) {
-                boxContent.current.style.visibility = 'visible'
-
-            }
-            changeState()
-        }
-
-    }, [Actived, widthWrapper])
-
-    return (
-        <>
-            <HiddenButton ref={button} onClick={resetButton}>
-                <img src={maximize} alt="" />
-            </HiddenButton>
-
-            <StyledPanel ref={boxWrapper} id="panel" className="controlPanel">
-
-                <div ref={boxContent}>
-                    <img src={panel} alt="painel1" />
-                    <p>Painel de Controle</p>
-                </div>
-
-                {dashboardStatus === "display" ?
-                    <MinimizeButton onClick={setPanelState}>
-                        <img src={minimize} alt="" />
-                    </MinimizeButton> : ""}
-
-                {dashboardStatus === "hide" ?
-                    <MaximizeButton onClick={setPanelState}>
-                        <img src={maximize} alt="" />
-                    </MaximizeButton> : ""}
-
-            </StyledPanel>
-        </>
-    )
+        {dashboardStatus === 'hide' ? (
+          <MaximizeButton onClick={setPanelState}>
+            <img src={maximize} alt="" />
+          </MaximizeButton>
+        ) : (
+          ''
+        )}
+      </StyledPanel>
+    </>
+  );
 }

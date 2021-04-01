@@ -1,11 +1,10 @@
-import styled from "styled-components";
-import { createGlobalStyle } from 'styled-components'
+import styled, { createGlobalStyle } from 'styled-components';
 
 export const FlexContainer = styled.div`
-    height: 100%;
-    width: 100%;
-    display:flex;
-`
+  height: 100%;
+  width: 100%;
+  display: flex;
+`;
 
 export default createGlobalStyle`
   *{
@@ -77,4 +76,4 @@ export default createGlobalStyle`
       font-size: 38.5%;
     }
   }
-`
+`;
